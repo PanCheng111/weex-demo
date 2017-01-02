@@ -1,0 +1,90 @@
+<template>
+  <div class="browserStyle">
+
+      <div id="control1" style="height: 100; flex-direction: row; background-color: #000000">
+         <wxc-button type="primary" size="large" value="开始" onclick="{{start}}" style="width: {{btnWidth}}">开始</wxc-button>
+         <wxc-button type="warning" size="large" value="结束" onclick="{{stop}}" style="width: {{btnWidth}}">结束</wxc-button>
+      </div>
+      <div id="control2" style="height: 100; flex-direction: row; background-color: #000000">
+         <wxc-button type="success" size="large" value="{{miniteStr}}：{{secondStr}}" onclick="" style="width: {{btnWidth * 2}}" />
+      </div>
+      
+    <div>
+      <web id="webview" src="{{src}}" class="webStyle" style="height: {{ctHeight}}; width: {{ctWidth}}"></web>
+    </div>
+  </div>
+</template>
+
+<style>
+  wxc-button{
+    display: inline;
+  }
+  .webStyle {
+    width: 750;
+    height: 800;
+    background-color: #000000;
+  }
+</style>
+
+<script>
+  require('weex-components');
+  var web_module = require('@weex-module/webview')
+  var timer;
+
+  module.exports = {
+    data: {
+      ctHeight : 800,
+      ctWidth : 750,
+      btnWidth : 250,
+      minite: 0,
+      second: 0,
+      miniteStr: "00",
+      secondStr : "00",
+      src : "Cuber.htm",
+    },
+
+    methods: {
+      start: function (e) {
+        var web_element = this.$el('webview');
+        //web_module.reload(web_element);
+        this.src = "Cuber.htm";//input.attr.value;
+        if (timer) clearInterval(timer);
+        this.second = 0;
+        this.minite = 0;
+        timer = setInterval(this.add.bind(this), 1000);
+      },
+      add: function() {
+        this.second ++;
+        if (this.second == 60) {
+          this.minite ++;
+          this.second = 0;
+        }
+        this.secondStr = "" + this.second;
+        this.miniteStr = "" + this.minite;
+        if (this.secondStr.length < 2) this.secondStr = "0" + this.secondStr;
+        if (this.miniteStr.length < 2) this.miniteStr = "0" + this.miniteStr;
+      },
+
+      stop: function (e) {
+        clearInterval(timer);
+      },
+
+      backforward: function (e) {
+        var web_element = this.$el('webview');
+        web_module.goBack(web_element);
+      },
+
+      forward: function (e) {
+        var web_element = this.$el('webview');
+        web_module.goForward(web_element);
+      },
+
+      ready: function () {
+        console.log("hello ~ ", this.$el('control1'));
+        this.ctHeight = this.$getConfig().env.deviceHeight - 200;
+        this.ctWidth = this.$getConfig().env.deviceWidth;
+        this.btnWidth = (this.$getConfig().env.deviceWidth) / 2;
+      }
+    }
+  }
+</script>
